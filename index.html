@@ -3507,8 +3507,15 @@ function stParseExplanation(raw){
   return obj;
 }
 
+// 标点后面没留空格时（比如"movie,Sharon"），跟标准答案"movie, Sharon"切出来的词对不上，
+// 会被当成"整段不一样"画出一条假的划线——这里在切词之前先把标点后面强制补一个空格，
+// 让两边切出来的词数量和内容能对齐，跟真正判分用的 normalizeAnswerText 保持同一套宽松度。
+function stNormalizePunctSpacing(t){
+  return String(t||'').replace(/([,.!?;:])(?=\S)/g, '$1 ');
+}
+
 function stTokenize(t){
-  return String(t||'').trim().split(/\s+/).filter(function(x){return x.length;});
+  return stNormalizePunctSpacing(t).trim().split(/\s+/).filter(function(x){return x.length;});
 }
 
 // 题目模板打印引号时，引号和学生打的字之间隔着一个空格（模板文字 + 空格 + 输入框），
